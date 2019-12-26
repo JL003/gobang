@@ -1,0 +1,156 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{margin: 0;padding: 0;box-sizing: border-box;}
+        .table {
+            box-sizing: content-box;
+            position: relative;
+            width: 700px;
+            height: 750px;
+            margin: 10px auto;
+            background: url(./wzqbg.png);
+            border: 50px solid transparent;
+        }
+        .table .td {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border:1px solid gray;
+        }
+        .table .td:nth-child(15n){
+            border-right-color: transparent;
+        }
+        .table span {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            -border:1px solid rgba(244,22,22,.5);
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+            line-height: 40px;
+            color: gray;
+        }
+        .table span:nth-of-type(113):after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin: -5px 0 0 -5px;
+            background: #333;
+            border-radius: 50%;
+        }
+        .table span:nth-of-type(49):after
+        ,.table span:nth-of-type(57):after
+        ,.table span:nth-of-type(169):after
+        ,.table span:nth-of-type(177):after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin: -3px 0 0 -3px;
+            background: #666;
+            border-radius: 50%;
+        }
+        .table span.active::after {
+            display: none;
+        }
+        .table-info {
+            width: 800px;
+            margin: 5px auto 0;
+            background: url(./wzqbg.png);
+            height: 60px;
+            padding: 5px;
+        }
+        .table-info > div {
+            float: left;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+        .black {
+            background: black;
+            margin-right: 10px;
+        }
+        .white {
+            background: white;
+        }
+        .table-info .active {
+            box-shadow: 0 0 5px 2px limegreen;
+        }
+    </style>
+</head>
+<body>
+    <div class="table-info">
+        <div class="black active">
+        </div>
+        <div class="white">
+        </div>
+    </div>
+    <div class="table">
+    </div>
+    <script src="./ai.js"></script>
+    <script>
+        let table = document.getElementsByClassName('table')[0];
+        let black = document.getElementsByClassName('black')[0];
+        let white = document.getElementsByClassName('white')[0];
+        function switchPiece() {
+            isBlack = !isBlack;
+            black.classList.toggle('active');
+            white.classList.toggle('active');
+        }
+       let dataObj = {};
+        let str = '';
+        let spanBox = document.createDocumentFragment();
+        for(let i = 0; i < 14*14; i++) {
+            let top = parseInt(i / 14) * 50;
+            let left = i % 14 * 50;
+            str += `<div class="td" style="left: ${ left }px;top: ${ top }px;border-right-color:${ i % 14 !== 13 && 'transparent' || 'gray' };border-bottom-color:${ parseInt(i / 14) !== 13 && 'transparent' || 'gray' }"></div>`;
+        }
+        var isBlack = true;
+        for(let index = 0; index < 15*15; index++) {
+            let top = parseInt(index / 15);
+            let left = index % 15;
+            let span = document.createElement('span');
+            span.style.left = left * 50 - 20 + 'px';
+            span.style.top = top * 50 - 20 + 'px';
+            // span.innerText = left + ',' + top;
+            dataObj[left + '-' + top] = {
+                active: false,
+                color: '',
+                el: span,
+                x: left,
+                y: top
+            };
+            span.onclick = function() {
+                let x = index % 15;
+                let y = parseInt(index / 15);
+                let data = dataObj[x + '-' + y];
+                if(data['active']) {
+                    return false;
+                }
+                data['active'] = true;
+                data['color'] = isBlack && 'black' || 'white';
+                this.classList.add('active');
+                this.style.background = data['color'];
+                this.style.boxShadow = `0 0 6px ${ data['color'] }`;
+                isWin(x, y, data);
+                switchPiece();
+                aiRun(x, y, isBlack);
+            }
+            spanBox.appendChild(span);
+        }
+        table.innerHTML = str;
+        table.appendChild(spanBox);
+    </script>
+</body>
+</html>
